@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Fireworks</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xffa500, 0x800080];
+
+        function getRandomColor() {
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function createFirework() {
+            const firework = new THREE.Group();
+            const material = new THREE.PointsMaterial({
+                size: 5,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            for (let i = 0; i < 15; i++) {
+                const geometry = new THREE.BufferGeometry();
+                const vertices = [];
+                const colors = [];
+                const x = (Math.random() * 2 - 1) * 50;
+                const y = (Math.random() * 2 - 1) * 50;
+                const z = (Math.random() * 2 - 1) * 50;
+                vertices.push(x, y, z);
+
+                const color1 = new THREE.Color(getRandomColor());
+                const color2 = new THREE.Color(getRandomColor());
+                while (color1.equals(color2)) {
+                    color2.set(getRandomColor());
+                }
+                colors.push(color1.r, color1.g, color1.b);
+                colors.push(color2.r, color2.g, color2.b);
+
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+                const points = new THREE.Points(geometry, material);
+                firework.add(points);
+            }
+
+            scene.add(firework);
+            return firework;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+
+        camera.position.z = 100;
+        for (let i = 0; i < 3; i++) {
+            setTimeout(createFirework, i * 2000);
+        }
+        animate();
+    </script>
+</body>
+</html>
